@@ -19,8 +19,9 @@ package org.jivesoftware.smack.serverless;
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.packet.PlainStreamElement;
+import org.jivesoftware.smack.packet.Nonza;
 import org.jivesoftware.smack.packet.Stanza;
+import org.jxmpp.jid.parts.Resourcepart;
 
 import java.io.IOException;
 
@@ -51,8 +52,7 @@ public class XMPPLLConnection extends AbstractXMPPConnection {
 
     }
 
-    @Override public void send(PlainStreamElement element)
-                    throws SmackException.NotConnectedException, InterruptedException {
+    @Override public void sendNonza(Nonza element) throws SmackException.NotConnectedException, InterruptedException {
 
     }
 
@@ -64,12 +64,7 @@ public class XMPPLLConnection extends AbstractXMPPConnection {
 
     }
 
-    @Override protected void loginNonAnonymously(String username, String password, String resource)
-                    throws XMPPException, SmackException, IOException, InterruptedException {
-
-    }
-
-    @Override protected void loginAnonymously()
+    @Override protected void loginInternal(String username, String password, Resourcepart resource)
                     throws XMPPException, SmackException, IOException, InterruptedException {
 
     }
