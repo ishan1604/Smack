@@ -14,24 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jivesoftware.smack.serverless;
+package org.jivesoftware.smack.serverless.packet;
 
-/**
- * Interface for receiving notifications about presence changes.
- */
-public interface LLPresenceListener {
-    /**
-     * New link-local presence has been discovered.
-     *
-     * @param presence information about the new presence
-     */
+import org.jivesoftware.smack.packet.StreamOpen;
+import org.jivesoftware.smack.util.XmlStringBuilder;
 
-    public void presenceNew(LLPresence presence);
+public class XMPPLLStreamOpen extends StreamOpen {
 
-    /**
-     * A link-local presence has gone offline.
-     *
-     * @param presence the presence which went offline.
-     */
-    public void presenceRemove(LLPresence presence);
+    private final String fromService;
+
+    public XMPPLLStreamOpen(String toService, String fromService) {
+        super(toService);
+        this.fromService = fromService;
+    }
+
+    @Override public XmlStringBuilder toXML() {
+        XmlStringBuilder xml = new XmlStringBuilder(this);
+        xml.attribute("from", fromService);
+        xml.rightAngleBracket();
+        return xml;
+    }
+
 }

@@ -22,7 +22,7 @@ import org.jivesoftware.smack.packet.Message;
  * Interface for handling link-local service events such as
  * service closing, service crashes and other events.
  */
-public interface LLServiceStateListener {
+public interface XMPPLLServiceStateListener {
 
     /**
      * Notification that the service name was changed.

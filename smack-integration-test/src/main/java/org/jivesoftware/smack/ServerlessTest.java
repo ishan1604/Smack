@@ -55,12 +55,9 @@ public class ServerlessTest extends AbstractSmackLowLevelIntegrationTest {
         jmdns.registerService(ServiceInfo.create(PRESENCE, "romeo@doronto", 5563,
                         "Testing Service B"));
 
-        Thread.sleep(10000);
-
         for (ServiceInfo si : jmdns.list(PRESENCE)) {
             LOGGER.info(si.toString());
         }
 
-        Thread.sleep(5000);
     }
 }

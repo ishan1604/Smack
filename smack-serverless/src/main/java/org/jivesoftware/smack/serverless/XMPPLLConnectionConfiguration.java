@@ -21,10 +21,10 @@ import org.jivesoftware.smack.ConnectionConfiguration;
 import javax.net.SocketFactory;
 import java.net.Socket;
 
-public class LLConnectionConfiguration extends ConnectionConfiguration {
+public class XMPPLLConnectionConfiguration extends ConnectionConfiguration {
 
-    private LLPresence remotePresence;
-    private LLPresence localPresence;
+    private XMPPLLPresence remotePresence;
+    private XMPPLLPresence localPresence;
     private Socket socket;
 
     /**
@@ -37,7 +37,7 @@ public class LLConnectionConfiguration extends ConnectionConfiguration {
      * @param localPresence Local Link Presence
      * @param remoteSocket The socket that is associated with this local connection
      */
-    public LLConnectionConfiguration(LLPresence localPresence, Socket remoteSocket) {
+    public XMPPLLConnectionConfiguration(XMPPLLPresence localPresence, Socket remoteSocket) {
         super(null);
         this.localPresence = localPresence;
         this.socket = remoteSocket;
@@ -55,7 +55,7 @@ public class LLConnectionConfiguration extends ConnectionConfiguration {
      * Return the remote client's link-local presence information.
      * @return the remote client's link-local presence information
      */
-    public LLPresence getRemotePresence() {
+    public XMPPLLPresence getRemotePresence() {
         return remotePresence;
     }
 
@@ -63,7 +63,7 @@ public class LLConnectionConfiguration extends ConnectionConfiguration {
      * Return this client's link-local presence information.
      * @return this client's link-local presence information
      */
-    public LLPresence getLocalPresence() {
+    public XMPPLLPresence getLocalPresence() {
         return localPresence;
     }
 

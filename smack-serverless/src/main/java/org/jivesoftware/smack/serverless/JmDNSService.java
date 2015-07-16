@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class JmDNSService extends LLService implements ServiceListener {
+public class JmDNSService extends XMPPLLService implements ServiceListener {
 
     static final String SERVICE_TYPE = "_presence._tcp.local.";
     static JmDNS jmDNS = null;
@@ -54,7 +54,7 @@ public class JmDNSService extends LLService implements ServiceListener {
         return null;
     }
 
-    @Override public void announcePresence(LLPresence llPresence) throws XMPPException {
+    @Override public void announcePresence(XMPPLLPresence XMPPLLPresence) throws XMPPException {
 
         serviceInfo = ServiceInfo.create(SERVICE_TYPE, presence.getServiceName(), presence.getPort(), 0, 0,
                         presence.toMap());

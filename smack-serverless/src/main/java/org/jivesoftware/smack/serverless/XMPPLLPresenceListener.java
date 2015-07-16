@@ -17,15 +17,21 @@
 package org.jivesoftware.smack.serverless;
 
 /**
- * Notification about when new Link-local connections associated with a
- * specific Link-local service has been established.
+ * Interface for receiving notifications about presence changes.
  */
-public interface LLServiceConnectionListener {
+public interface XMPPLLPresenceListener {
+    /**
+     * New link-local presence has been discovered.
+     *
+     * @param presence information about the new presence
+     */
+
+    public void presenceNew(XMPPLLPresence presence);
 
     /**
-     * A new link-local connection has been established.
+     * A link-local presence has gone offline.
      *
-     * @param connection the new established connection.
+     * @param presence the presence which went offline.
      */
-    public void connectionCreated(XMPPLLConnection connection);
+    public void presenceRemove(XMPPLLPresence presence);
 }

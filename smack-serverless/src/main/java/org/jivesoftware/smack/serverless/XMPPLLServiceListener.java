@@ -19,12 +19,12 @@ package org.jivesoftware.smack.serverless;
 /**
  * Notification for new Link-local services created.
  */
-public interface LLServiceListener {
+public interface XMPPLLServiceListener {
 
     /**
      * The function called when a new Link-local service is created.
      *
      * @param service the new service
      */
-    public void serviceCreated(LLService service);
+    public void serviceCreated(XMPPLLService service);
 }

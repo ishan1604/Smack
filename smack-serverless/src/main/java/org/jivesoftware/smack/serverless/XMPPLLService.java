@@ -29,17 +29,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class LLService {
+public abstract class XMPPLLService {
 
     static final int DEFAULT_MIN_PORT = 2300;
     static final int DEFAULT_MAX_PORT = 2400;
-    private static LLService service = null;
+    private static XMPPLLService service = null;
 
     static {
         SmackConfiguration.getVersion();
     }
 
-    protected LLPresence presence;
+    protected XMPPLLPresence presence;
     private boolean done = false;
     private boolean initiated = false;
     private Thread listenerThread;
@@ -47,7 +47,7 @@ public abstract class LLService {
     private Map<String, XMPPLLConnection> incoming = new ConcurrentHashMap<String, XMPPLLConnection>();
     private Map<String, XMPPLLConnection> outgoing = new ConcurrentHashMap<String, XMPPLLConnection>();
 
-    public static LLService getInstance() {
+    public static XMPPLLService getInstance() {
 
         if (service == null) {
             service = new JmDNSService();
@@ -94,7 +94,7 @@ public abstract class LLService {
      * @throws XMPPException
      * @param presence
      */
-    public abstract void announcePresence(LLPresence presence) throws XMPPException;
+    public abstract void announcePresence(XMPPLLPresence presence) throws XMPPException;
 
     /**
      * Marks absence of a client on the Link Local Network. Marking absence
@@ -144,7 +144,7 @@ public abstract class LLService {
                 // wait for new connection
                 Socket s = socket.accept();
 
-                LLConnectionConfiguration config = new LLConnectionConfiguration(presence, s);
+                XMPPLLConnectionConfiguration config = new XMPPLLConnectionConfiguration(presence, s);
 
             }
             catch (SocketException se) {

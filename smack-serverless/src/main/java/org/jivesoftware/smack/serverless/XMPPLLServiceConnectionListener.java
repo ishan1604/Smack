@@ -14,25 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jivesoftware.smack.serverless.packet;
+package org.jivesoftware.smack.serverless;
 
-import org.jivesoftware.smack.packet.StreamOpen;
-import org.jivesoftware.smack.util.XmlStringBuilder;
+/**
+ * Notification about when new Link-local connections associated with a
+ * specific Link-local service has been established.
+ */
+public interface XMPPLLServiceConnectionListener {
 
-public class LLStreamOpen extends StreamOpen {
-
-    private final String fromService;
-
-    public LLStreamOpen(String toService, String fromService) {
-        super(toService);
-        this.fromService = fromService;
-    }
-
-    @Override public XmlStringBuilder toXML() {
-        XmlStringBuilder xml = new XmlStringBuilder(this);
-        xml.attribute("from", fromService);
-        xml.rightAngleBracket();
-        return xml;
-    }
-
+    /**
+     * A new link-local connection has been established.
+     *
+     * @param connection the new established connection.
+     */
+    public void connectionCreated(XMPPLLConnection connection);
 }

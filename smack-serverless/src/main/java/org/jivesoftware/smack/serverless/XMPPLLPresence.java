@@ -42,7 +42,7 @@ import java.util.Map;
  * </pre>
  */
 
-public class LLPresence {
+public class XMPPLLPresence {
 
     // Additional properties (if any)
     private final Map<String, String> additionalProperties = new HashMap<String, String>();
@@ -66,17 +66,17 @@ public class LLPresence {
     private int port = 0;
     private String host;
     private String serviceName;
-    public LLPresence(String serviceName) {
+    public XMPPLLPresence(String serviceName) {
         this.serviceName = serviceName;
     }
 
-    public LLPresence(String serviceName, String host, int port) {
+    public XMPPLLPresence(String serviceName, String host, int port) {
         this.serviceName = serviceName;
         this.host = host;
         this.port = port;
     }
 
-    public LLPresence(String serviceName, String host, int port, Map<String, String> records) {
+    public XMPPLLPresence(String serviceName, String host, int port, Map<String, String> records) {
         this(serviceName, host, port);
 
         // Parse the map (originating from the TXT fields) and put them
@@ -145,7 +145,7 @@ public class LLPresence {
     /**
      * Update all the values of the presence.
      */
-    void update(LLPresence p) {
+    void update(XMPPLLPresence p) {
         setFirstName(p.getFirstName());
         setLastName(p.getLastName());
         setEmail(p.getEmail());
