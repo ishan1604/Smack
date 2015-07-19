@@ -61,7 +61,7 @@ public class XMPPLLPresence {
      * As per the documentation, by default the presence status of a link-local
      * user will be Available.
      */
-    private Mode status = Mode.AVAILABLE;
+    private Mode status = Mode.avail;
     // Host Details
     private int port = 0;
     private String host;
@@ -260,9 +260,27 @@ public class XMPPLLPresence {
     }
 
     public static enum Mode {
-        AVAILABLE,
-        AWAY,
+        avail,
+        away,
         DND,
         BUSY
+    }
+
+    @Override public String toString() {
+        return "XMPPLLPresence{" +
+                        "serviceName='" + serviceName + '\'' +
+                        ", host='" + host + '\'' +
+                        ", port=" + port +
+                        ", status=" + status +
+                        ", node='" + node + '\'' +
+                        ", ver='" + ver + '\'' +
+                        ", hash='" + hash + '\'' +
+                        ", jid='" + jid + '\'' +
+                        ", nick='" + nick + '\'' +
+                        ", msg='" + msg + '\'' +
+                        ", email='" + email + '\'' +
+                        ", lastName='" + lastName + '\'' +
+                        ", firstName='" + firstName + '\'' +
+                        '}';
     }
 }

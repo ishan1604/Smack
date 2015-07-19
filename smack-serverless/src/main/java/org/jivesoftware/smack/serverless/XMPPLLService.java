@@ -144,7 +144,7 @@ public abstract class XMPPLLService {
                 // wait for new connection
                 Socket s = socket.accept();
 
-                XMPPLLConnectionConfiguration config = new XMPPLLConnectionConfiguration(presence, s);
+                //XMPPLLConnectionConfiguration config = new XMPPLLConnectionConfiguration(presence, s);
 
             }
             catch (SocketException se) {

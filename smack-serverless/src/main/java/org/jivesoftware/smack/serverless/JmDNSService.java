@@ -19,6 +19,8 @@ package org.jivesoftware.smack.serverless;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.XMPPError;
 import org.jxmpp.jid.BareJid;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.stringprep.XmppStringprepException;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
@@ -26,14 +28,17 @@ import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 import javax.jmdns.impl.JmDNSImpl;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class JmDNSService extends XMPPLLService implements ServiceListener {
 
     static final String SERVICE_TYPE = "_presence._tcp.local.";
     static JmDNS jmDNS = null;
-
+    private List<BareJid> clientsPresentOnNetwork = new ArrayList<>();
     static {
         try {
             if (jmDNS == null) {
@@ -51,11 +56,11 @@ public class JmDNSService extends XMPPLLService implements ServiceListener {
     }
 
     @Override public List<BareJid> getAllClientsPresentOnLLNetwork() {
-        return null;
+        return clientsPresentOnNetwork;
     }
 
-    @Override public void announcePresence(XMPPLLPresence XMPPLLPresence) throws XMPPException {
-
+    @Override public void announcePresence(XMPPLLPresence presence) throws XMPPException {
+        this.presence = presence;
         serviceInfo = ServiceInfo.create(SERVICE_TYPE, presence.getServiceName(), presence.getPort(), 0, 0,
                         presence.toMap());
         jmDNS.addServiceListener(SERVICE_TYPE, this);
@@ -123,14 +128,31 @@ public class JmDNSService extends XMPPLLService implements ServiceListener {
     }
 
     @Override public void serviceAdded(ServiceEvent event) {
+        System.out.println("Service Added");
+        System.out.println(event.getInfo().toString());
 
     }
 
     @Override public void serviceRemoved(ServiceEvent event) {
+        System.out.println("Service Removed");
+        System.out.println(event.getInfo().toString());
 
     }
 
     @Override public void serviceResolved(ServiceEvent event) {
-
+        System.out.println("Service Resolved");
+        System.out.println(event.getInfo().toString());
+        if (event.getInfo().hasData()) {
+            try {
+                BareJid bareJid = JidCreate.bareFrom(event.getInfo().getPropertyString("jid"));
+                clientsPresentOnNetwork.add(bareJid);
+                for(BareJid bareJid1 : clientsPresentOnNetwork) {
+                    System.out.println("Client : " + bareJid1.toString());
+                }
+            }
+            catch (XmppStringprepException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

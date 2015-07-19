@@ -17,11 +17,15 @@
 package org.jivesoftware.smack.serverless;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jxmpp.jid.DomainBareJid;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.stringprep.XmppStringprepException;
 
 import javax.net.SocketFactory;
+import java.net.InetAddress;
 import java.net.Socket;
 
-public class XMPPLLConnectionConfiguration extends ConnectionConfiguration {
+public class XMPPLLConnectionConfiguration extends ConnectionConfiguration{
 
     private XMPPLLPresence remotePresence;
     private XMPPLLPresence localPresence;
@@ -32,15 +36,9 @@ public class XMPPLLConnectionConfiguration extends ConnectionConfiguration {
      */
     private SocketFactory socketFactory;
 
-    /**
-     * Initiating a Link Local Connection when the client is acting has a Host.
-     * @param localPresence Local Link Presence
-     * @param remoteSocket The socket that is associated with this local connection
-     */
-    public XMPPLLConnectionConfiguration(XMPPLLPresence localPresence, Socket remoteSocket) {
-        super(null);
-        this.localPresence = localPresence;
-        this.socket = remoteSocket;
+    public XMPPLLConnectionConfiguration(Builder builder) {
+        super(builder);
+        localPresence = new XMPPLLPresence(builder.serviceName);
     }
 
     /**
@@ -76,4 +74,31 @@ public class XMPPLLConnectionConfiguration extends ConnectionConfiguration {
         return socket;
     }
 
+
+    public static final class Builder extends ConnectionConfiguration.Builder<Builder, XMPPLLConnectionConfiguration> {
+
+        String serviceName;
+        int port;
+
+        public Builder setServiceName(String serviceName) {
+            this.serviceName = serviceName;
+            return this;
+        }
+
+        @Override public XMPPLLConnectionConfiguration build() {
+
+            try {
+                this.setXmppDomain(JidCreate.domainBareFrom("linklocal.com"));
+            }
+            catch (XmppStringprepException e) {
+                e.printStackTrace();
+            }
+
+            return new XMPPLLConnectionConfiguration(this);
+        }
+
+        @Override protected Builder getThis() {
+            return this;
+        }
+    }
 }

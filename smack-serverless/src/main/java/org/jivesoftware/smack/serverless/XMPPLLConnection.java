@@ -28,19 +28,18 @@ import java.io.IOException;
 public class XMPPLLConnection extends AbstractXMPPConnection {
 
     private JmDNSService service;
-
+    private final XMPPLLConnectionConfiguration xmppllConnectionConfiguration;
     /**
      * Initialize a new Link-Local Connection.  
-     * @param service XMPPLLService associated with the connection
      * @param configuration specifications about the connection to be established
      */
-    protected XMPPLLConnection(JmDNSService service, XMPPLLConnectionConfiguration configuration) {
+    protected XMPPLLConnection(XMPPLLConnectionConfiguration configuration) {
         super(configuration);
-        this.service = service;
+        xmppllConnectionConfiguration = configuration;
     }
 
-    public void announcePresence(XMPPLLPresence xmppllPresence) throws XMPPException {
-        service.announcePresence(xmppllPresence);
+    public void announcePresence() throws XMPPException {
+        service.announcePresence(xmppllConnectionConfiguration.getLocalPresence());
     }
 
     @Override public boolean isSecureConnection() {

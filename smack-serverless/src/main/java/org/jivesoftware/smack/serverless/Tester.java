@@ -12,28 +12,59 @@
  */
 package org.jivesoftware.smack.serverless;
 
+import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jxmpp.jid.BareJid;
 
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.List;
 
 public class Tester {
 
-    public static void main(String...args) {
+    public static void main(String...args) throws UnknownHostException {
 
-        JmDNSService jmDNSService = new JmDNSService();
-        XMPPLLPresence xmppllPresence = new XMPPLLPresence("tom@macbook15");
-        xmppllPresence.setFirstName("Tom");
-        xmppllPresence.setLastName("Taylor");
-        xmppllPresence.setEmail("tom@ishankhanna.in");
-        xmppllPresence.setPort(5562);
-        Socket socket = new Socket();
-        XMPPLLConnectionConfiguration xmppllConnectionConfiguration = new XMPPLLConnectionConfiguration(xmppllPresence, socket);
-        XMPPLLConnection xmppllConnection = new XMPPLLConnection(jmDNSService, xmppllConnectionConfiguration);
+//        XMPPLLPresence xmppllPresence = new XMPPLLPresence("ishan@intellij");
+//        xmppllPresence.setPort(5562);
+//        xmppllPresence.setFirstName("Deepali");
+//        xmppllPresence.setLastName("Kishnani");
+//        xmppllPresence.setNick("deeps");
+//        xmppllPresence.setStatus(XMPPLLPresence.Mode.avail);
+//        xmppllPresence.setHost(InetAddress.getLocalHost().toString());
+//        xmppllPresence.setHash("sha-1");
+//        xmppllPresence.setVer("1");
+//        xmppllPresence.setMsg("Hanging out down");
+//        xmppllPresence.setNode("www.ishankhanna.in");
+//        xmppllPresence.setJid("ishan1604@jabber.org");
+//
+//        JmDNSService jmDNSService = new JmDNSService();
+//
+//        try {
+//            jmDNSService.announcePresence(xmppllPresence);
+//
+//            List<BareJid> bareJids = jmDNSService.getAllClientsPresentOnLLNetwork();
+//            for(BareJid bareJid : bareJids) {
+//                System.out.println("Client : " + bareJid.toString());
+//            }
+//            //jmDNSService.concealPresence();
+//        }
+//        catch (XMPPException e) {
+//            e.printStackTrace();
+//        }
+
+        //        Socket socket = new Socket();
+        XMPPLLConnectionConfiguration xmppllConnectionConfiguration = new XMPPLLConnectionConfiguration.Builder()
+                        .setServiceName("ishan@mbp")
+                        .build();
+        XMPPLLConnection xmppllConnection = new XMPPLLConnection(xmppllConnectionConfiguration);
         try {
-            xmppllConnection.announcePresence(xmppllPresence);
+            xmppllConnection.announcePresence();
         }
         catch (XMPPException e) {
             e.printStackTrace();
         }
+
     }
 }
