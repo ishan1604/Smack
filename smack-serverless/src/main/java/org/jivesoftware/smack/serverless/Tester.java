@@ -17,52 +17,72 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jxmpp.jid.BareJid;
 
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.*;
 import java.util.List;
 
-public class Tester {
+public class Tester extends Thread{
 
-    public static void main(String...args) throws UnknownHostException {
+    private ServerSocket listeningSocket;
+    private SocketAddress previousClientsSocketAddress;
 
-//        XMPPLLPresence xmppllPresence = new XMPPLLPresence("ishan@intellij");
-//        xmppllPresence.setPort(5562);
-//        xmppllPresence.setFirstName("Deepali");
-//        xmppllPresence.setLastName("Kishnani");
-//        xmppllPresence.setNick("deeps");
-//        xmppllPresence.setStatus(XMPPLLPresence.Mode.avail);
-//        xmppllPresence.setHost(InetAddress.getLocalHost().toString());
-//        xmppllPresence.setHash("sha-1");
-//        xmppllPresence.setVer("1");
-//        xmppllPresence.setMsg("Hanging out down");
-//        xmppllPresence.setNode("www.ishankhanna.in");
-//        xmppllPresence.setJid("ishan1604@jabber.org");
-//
-//        JmDNSService jmDNSService = new JmDNSService();
-//
-//        try {
-//            jmDNSService.announcePresence(xmppllPresence);
-//
-//            List<BareJid> bareJids = jmDNSService.getAllClientsPresentOnLLNetwork();
-//            for(BareJid bareJid : bareJids) {
-//                System.out.println("Client : " + bareJid.toString());
-//            }
-//            //jmDNSService.concealPresence();
-//        }
-//        catch (XMPPException e) {
-//            e.printStackTrace();
-//        }
+    public Tester(int port) throws IOException
+    {
+        listeningSocket = new ServerSocket(port);
+        listeningSocket.setSoTimeout(100000);
+    }
 
-        //        Socket socket = new Socket();
-        XMPPLLConnectionConfiguration xmppllConnectionConfiguration = new XMPPLLConnectionConfiguration.Builder()
-                        .setServiceName("ishan@mbp")
-                        .build();
-        XMPPLLConnection xmppllConnection = new XMPPLLConnection(xmppllConnectionConfiguration);
-        try {
-            xmppllConnection.announcePresence();
+    @Override public void run() {
+
+        while (true) {
+            try {
+                System.out.println("Waiting for client on port " +
+                                listeningSocket.getLocalPort() + "...");
+                Socket client = listeningSocket.accept();
+                System.out.println("Remote Socket Address : " + client.getRemoteSocketAddress().toString());
+                if (previousClientsSocketAddress == null || !client.getRemoteSocketAddress().equals(previousClientsSocketAddress)) {
+                    System.out.println("Just connected to "
+                                    + client.getRemoteSocketAddress());
+                    previousClientsSocketAddress = client.getRemoteSocketAddress();
+                    Runnable runnable = new Runnable() {
+                        @Override public void run() {
+                            try {
+                                while(true) {
+                                    DataInputStream in =
+                                                new DataInputStream(client.getInputStream());
+                                    System.out.println("Message in Thread with ID : " + currentThread().getId() + "," + in.readUTF());
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    };
+
+                    Thread thread = new Thread(runnable);
+                    System.out.println("Spawned new thread with ID : " + thread.getId());
+                    thread.start();
+                }
+            } catch(SocketTimeoutException s)
+            {
+                System.out.println("Socket timed out!");
+                break;
+            }catch(IOException e)
+            {
+                e.printStackTrace();
+                break;
+            }
         }
-        catch (XMPPException e) {
+    }
+
+    public static void main(String...args) {
+
+        try {
+            Tester tester = new Tester(1337);
+            tester.start();
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
 

@@ -33,9 +33,10 @@ public class XMPPLLConnection extends AbstractXMPPConnection {
      * Initialize a new Link-Local Connection.  
      * @param configuration specifications about the connection to be established
      */
-    protected XMPPLLConnection(XMPPLLConnectionConfiguration configuration) {
+    public XMPPLLConnection(XMPPLLConnectionConfiguration configuration) {
         super(configuration);
         xmppllConnectionConfiguration = configuration;
+        service = new JmDNSService();
     }
 
     public void announcePresence() throws XMPPException {
