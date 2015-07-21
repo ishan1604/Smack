@@ -19,8 +19,11 @@ package org.jivesoftware.smack.serverless;
 import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.XMPPError;
+import org.jivesoftware.smack.serverless.packet.XMPPLLStreamOpen;
 import org.jxmpp.jid.BareJid;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -43,7 +46,7 @@ public abstract class XMPPLLService {
     private boolean done = false;
     private boolean initiated = false;
     private Thread listenerThread;
-    private ServerSocket socket;
+    private ServerSocket listeningSocket;
     private Map<String, XMPPLLConnection> incoming = new ConcurrentHashMap<String, XMPPLLConnection>();
     private Map<String, XMPPLLConnection> outgoing = new ConcurrentHashMap<String, XMPPLLConnection>();
 
@@ -57,7 +60,7 @@ public abstract class XMPPLLService {
     }
 
     /**
-     * Bind one socket to any port within a given range.
+     * Bind one listeningSocket to any port within a given range.
      *
      * @param min the minimum port number allowed
      * @param max hte maximum port number allowed
@@ -104,61 +107,74 @@ public abstract class XMPPLLService {
      */
     public abstract void concealPresence();
 
-    public void init() throws XMPPException {
+    public void init(int port) throws XMPPException, IOException {
 
         // allocate a new port for remote clients to connect to
-        socket = bindRange(DEFAULT_MIN_PORT, DEFAULT_MAX_PORT);
-
-        // register service on the allocated port
-        //announcePresence();
+        listeningSocket = new ServerSocket(port);
 
         // start to listen for new connections
         listenerThread = new Thread() {
             public void run() {
                 try {
+
+                    System.out.println("Thread started");
                     // Listen for connections
                     listenForConnections();
 
                 }
                 catch (XMPPException e) {
+                    e.printStackTrace();
                 }
             }
         };
         listenerThread.setName("Smack Link-local Service Listener");
         listenerThread.setDaemon(true);
         listenerThread.start();
-
-        initiated = true;
-
     }
 
     /**
-     * Listen for new connections on socket, and spawn XMPPLLConnections
+     * Listen for new connections on listeningSocket, and spawn XMPPLLConnections
      * when new connections are established.
      *
      * @throws XMPPException whenever an exception occurs
      */
     private void listenForConnections() throws XMPPException {
+        System.out.println("Listening For Connections");
         while (!done) {
             try {
-                // wait for new connection
-                Socket s = socket.accept();
-
-                //XMPPLLConnectionConfiguration config = new XMPPLLConnectionConfiguration(presence, s);
-
+                while (true) {
+                    System.out.println("Listening For Connections in the loop");
+                    // wait for new connection
+                    Socket s = listeningSocket.accept();
+                    DataInputStream in = new DataInputStream(s.getInputStream());
+                    System.out.println(in.readUTF());
+                    if (!initiated) {
+                        DataOutputStream dataOutputStream = new DataOutputStream(s.getOutputStream());
+                        XMPPLLStreamOpen xmppllStreamOpen = new XMPPLLStreamOpen("ubuntu@ubuntu", presence.getServiceName());
+                        dataOutputStream.writeChars(xmppllStreamOpen.toXML().toString());
+                        System.out.println(xmppllStreamOpen.toXML().toString());
+                        dataOutputStream.flush();
+                        dataOutputStream.close();
+                        initiated = true;
+                    }
+                    System.out.println("Listening For Connections, out of the inner loop");
+                }
             }
             catch (SocketException se) {
-                // If we are closing down, it's probably closed socket exception.
+                System.out.println("SOE Happened");
+                // If we are closing down, it's probably closed listeningSocket exception.
                 if (!done) {
                     throw new XMPPException.XMPPErrorException("Link-local service unexpectedly closed down.",
                                     new XMPPError(XMPPError.Condition.undefined_condition), se);
                 }
             }
             catch (IOException ioe) {
+                System.out.println("IOE Happened");
                 throw new XMPPException.XMPPErrorException("Link-local service unexpectedly closed down.",
                                 new XMPPError(XMPPError.Condition.undefined_condition), ioe);
             }
         }
+        System.out.println("Listening For Connections, out of the loop");
     }
 
     /**

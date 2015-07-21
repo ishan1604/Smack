@@ -18,6 +18,7 @@ package org.jivesoftware.smack.serverless;
 
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.XMPPError;
+import org.jivesoftware.smack.serverless.packet.XMPPLLStreamOpen;
 import org.jxmpp.jid.BareJid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
@@ -60,6 +61,14 @@ public class JmDNSService extends XMPPLLService implements ServiceListener {
     }
 
     @Override public void announcePresence(XMPPLLPresence presence) throws XMPPException {
+
+        try {
+            init(presence.getPort());
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
         this.presence = presence;
         serviceInfo = ServiceInfo.create(SERVICE_TYPE, presence.getServiceName(), presence.getPort(), 0, 0,
                         presence.toMap());

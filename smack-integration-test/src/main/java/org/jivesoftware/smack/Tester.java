@@ -12,16 +12,21 @@
  */
 package org.jivesoftware.smack;
 
+import org.jivesoftware.smack.serverless.JmDNSService;
 import org.jivesoftware.smack.serverless.XMPPLLConnection;
 import org.jivesoftware.smack.serverless.XMPPLLConnectionConfiguration;
+import org.jivesoftware.smack.serverless.XMPPLLPresence;
+import org.jxmpp.jid.BareJid;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
+import java.util.List;
 
 public class Tester {
 
-    public static void main(String...args) throws UnknownHostException {
+    public static void main(String...args) throws UnknownHostException, InterruptedException {
 
 //        XMPPLLPresence xmppllPresence = new XMPPLLPresence("ishan@intellij");
 //        xmppllPresence.setPort(5562);
@@ -41,35 +46,25 @@ public class Tester {
 //        try {
 //            jmDNSService.announcePresence(xmppllPresence);
 //
-//            List<BareJid> bareJids = jmDNSService.getAllClientsPresentOnLLNetwork();
-//            for(BareJid bareJid : bareJids) {
-//                System.out.println("Client : " + bareJid.toString());
-//            }
-//            //jmDNSService.concealPresence();
 //        }
 //        catch (XMPPException e) {
 //            e.printStackTrace();
 //        }
 
-        //        Socket socket = new Socket();
         XMPPLLConnectionConfiguration xmppllConnectionConfiguration = new XMPPLLConnectionConfiguration.Builder()
                         .setServiceName("ishan@mbp")
                         .build();
         XMPPLLConnection xmppllConnection = new XMPPLLConnection(xmppllConnectionConfiguration);
         try {
+            System.out.println("Going Online");
             xmppllConnection.announcePresence();
         }
         catch (XMPPException e) {
             e.printStackTrace();
         }
-
-//        try {
-//            ServerSocket listeningSocket = new ServerSocket(1337);
-//
-//        }
-//        catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 }

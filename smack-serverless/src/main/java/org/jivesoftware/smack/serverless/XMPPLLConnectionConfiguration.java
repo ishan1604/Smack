@@ -23,14 +23,15 @@ import org.jxmpp.stringprep.XmppStringprepException;
 
 import javax.net.SocketFactory;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 public class XMPPLLConnectionConfiguration extends ConnectionConfiguration{
 
     private XMPPLLPresence remotePresence;
     private XMPPLLPresence localPresence;
     private Socket socket;
-
     /**
      * Holds the socket factory that is used to generate the socket in the connection.
      */
@@ -39,6 +40,22 @@ public class XMPPLLConnectionConfiguration extends ConnectionConfiguration{
     public XMPPLLConnectionConfiguration(Builder builder) {
         super(builder);
         localPresence = new XMPPLLPresence(builder.serviceName);
+        localPresence.setPort(5562);
+        localPresence.setFirstName("Deepali");
+        localPresence.setLastName("Kishnani");
+        localPresence.setNick("deeps");
+        localPresence.setStatus(XMPPLLPresence.Mode.avail);
+        try {
+            localPresence.setHost(InetAddress.getLocalHost().toString());
+        }
+        catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        localPresence.setHash("sha-1");
+        localPresence.setVer("1");
+        localPresence.setMsg("Hanging out down");
+        localPresence.setNode("www.ishankhanna.in");
+        localPresence.setJid("ishan1604@jabber.org");
     }
 
     /**

@@ -24,11 +24,15 @@ import org.jivesoftware.smack.packet.Stanza;
 import org.jxmpp.jid.parts.Resourcepart;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 
 public class XMPPLLConnection extends AbstractXMPPConnection {
 
     private JmDNSService service;
     private final XMPPLLConnectionConfiguration xmppllConnectionConfiguration;
+    private ServerSocket serverSocket;
+
+
     /**
      * Initialize a new Link-Local Connection.  
      * @param configuration specifications about the connection to be established
@@ -39,8 +43,12 @@ public class XMPPLLConnection extends AbstractXMPPConnection {
         service = new JmDNSService();
     }
 
-    public void announcePresence() throws XMPPException {
+    public void announcePresence() throws XMPPException, IOException {
         service.announcePresence(xmppllConnectionConfiguration.getLocalPresence());
+    }
+
+    public void concealPresence() {
+        service.concealPresence();
     }
 
     @Override public boolean isSecureConnection() {
