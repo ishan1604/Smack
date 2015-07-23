@@ -111,7 +111,7 @@ public abstract class XMPPLLService {
 
         // allocate a new port for remote clients to connect to
         listeningSocket = new ServerSocket(port);
-
+        listeningSocket.setSoTimeout(0);
         // start to listen for new connections
         listenerThread = new Thread() {
             public void run() {
@@ -147,7 +147,7 @@ public abstract class XMPPLLService {
                     // wait for new connection
                     Socket s = listeningSocket.accept();
                     DataInputStream in = new DataInputStream(s.getInputStream());
-                    System.out.println(in.readUTF());
+                    System.out.println(in.readChar());
                     if (!initiated) {
                         DataOutputStream dataOutputStream = new DataOutputStream(s.getOutputStream());
                         XMPPLLStreamOpen xmppllStreamOpen = new XMPPLLStreamOpen("ubuntu@ubuntu", presence.getServiceName());
@@ -170,6 +170,7 @@ public abstract class XMPPLLService {
             }
             catch (IOException ioe) {
                 System.out.println("IOE Happened");
+                ioe.printStackTrace();
                 throw new XMPPException.XMPPErrorException("Link-local service unexpectedly closed down.",
                                 new XMPPError(XMPPError.Condition.undefined_condition), ioe);
             }
