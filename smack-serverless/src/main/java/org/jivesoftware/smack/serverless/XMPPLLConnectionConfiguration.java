@@ -40,9 +40,9 @@ public class XMPPLLConnectionConfiguration extends ConnectionConfiguration{
     public XMPPLLConnectionConfiguration(Builder builder) {
         super(builder);
         localPresence = new XMPPLLPresence(builder.serviceName);
-        localPresence.setPort(5562);
-        localPresence.setFirstName("Deepali");
-        localPresence.setLastName("Kishnani");
+        localPresence.setPort(builder.port);
+        localPresence.setFirstName("Steven");
+        localPresence.setLastName("Smith");
         localPresence.setNick("deeps");
         localPresence.setStatus(XMPPLLPresence.Mode.avail);
         try {
@@ -53,7 +53,7 @@ public class XMPPLLConnectionConfiguration extends ConnectionConfiguration{
         }
         localPresence.setHash("sha-1");
         localPresence.setVer("1");
-        localPresence.setMsg("Hanging out down");
+        localPresence.setMsg("Testing Testing");
         localPresence.setNode("www.ishankhanna.in");
         localPresence.setJid("ishan1604@jabber.org");
     }
@@ -99,6 +99,11 @@ public class XMPPLLConnectionConfiguration extends ConnectionConfiguration{
 
         public Builder setServiceName(String serviceName) {
             this.serviceName = serviceName;
+            return this;
+        }
+
+        public Builder setPort(int port) {
+            this.port = port;
             return this;
         }
 

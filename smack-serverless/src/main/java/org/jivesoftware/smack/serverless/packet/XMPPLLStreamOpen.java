@@ -21,18 +21,8 @@ import org.jivesoftware.smack.util.XmlStringBuilder;
 
 public class XMPPLLStreamOpen extends StreamOpen {
 
-    private final String fromService;
-
     public XMPPLLStreamOpen(String toService, String fromService) {
-        super(toService);
-        this.fromService = fromService;
-    }
-
-    @Override public XmlStringBuilder toXML() {
-        XmlStringBuilder xml = new XmlStringBuilder(this);
-        xml.attribute("from", fromService);
-        xml.rightAngleBracket();
-        return xml;
+        super(toService, fromService, null, null, StreamContentNamespace.client);
     }
 
 }

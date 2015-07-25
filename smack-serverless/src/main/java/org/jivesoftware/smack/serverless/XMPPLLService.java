@@ -18,13 +18,13 @@ package org.jivesoftware.smack.serverless;
 
 import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smack.serverless.packet.XMPPLLStreamOpen;
 import org.jxmpp.jid.BareJid;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -146,22 +146,22 @@ public abstract class XMPPLLService {
                     System.out.println("Listening For Connections in the loop");
                     // wait for new connection
                     Socket s = listeningSocket.accept();
-                    DataInputStream in = new DataInputStream(s.getInputStream());
-                    System.out.println(in.readChar());
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
+                    System.out.println(reader.readLine());
                     if (!initiated) {
                         DataOutputStream dataOutputStream = new DataOutputStream(s.getOutputStream());
-                        XMPPLLStreamOpen xmppllStreamOpen = new XMPPLLStreamOpen("ubuntu@ubuntu", presence.getServiceName());
-                        dataOutputStream.writeChars(xmppllStreamOpen.toXML().toString());
+                        BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
+                        XMPPLLStreamOpen xmppllStreamOpen = new XMPPLLStreamOpen("ubuntu@ubuntu",
+                                        presence.getServiceName());
                         System.out.println(xmppllStreamOpen.toXML().toString());
-                        dataOutputStream.flush();
-                        dataOutputStream.close();
+                        bufferedWriter.write(xmppllStreamOpen.toXML().toString());
                         initiated = true;
                     }
                     System.out.println("Listening For Connections, out of the inner loop");
                 }
             }
             catch (SocketException se) {
-                System.out.println("SOE Happened");
+                se.printStackTrace();
                 // If we are closing down, it's probably closed listeningSocket exception.
                 if (!done) {
                     throw new XMPPException.XMPPErrorException("Link-local service unexpectedly closed down.",
@@ -169,7 +169,6 @@ public abstract class XMPPLLService {
                 }
             }
             catch (IOException ioe) {
-                System.out.println("IOE Happened");
                 ioe.printStackTrace();
                 throw new XMPPException.XMPPErrorException("Link-local service unexpectedly closed down.",
                                 new XMPPError(XMPPError.Condition.undefined_condition), ioe);

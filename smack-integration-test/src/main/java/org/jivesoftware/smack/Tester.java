@@ -12,10 +12,12 @@
  */
 package org.jivesoftware.smack;
 
+import org.jivesoftware.smack.packet.Nonza;
 import org.jivesoftware.smack.serverless.JmDNSService;
 import org.jivesoftware.smack.serverless.XMPPLLConnection;
 import org.jivesoftware.smack.serverless.XMPPLLConnectionConfiguration;
 import org.jivesoftware.smack.serverless.XMPPLLPresence;
+import org.jivesoftware.smack.serverless.packet.XMPPLLStreamOpen;
 import org.jxmpp.jid.BareJid;
 
 import java.io.IOException;
@@ -52,12 +54,26 @@ public class Tester {
 //        }
 
         XMPPLLConnectionConfiguration xmppllConnectionConfiguration = new XMPPLLConnectionConfiguration.Builder()
-                        .setServiceName("ishan@mbp")
+                        .setServiceName("ishan@macbookpro")
+                        .setPort(5522)
                         .build();
         XMPPLLConnection xmppllConnection = new XMPPLLConnection(xmppllConnectionConfiguration);
+
+//        XMPPLLConnectionConfiguration xmppllConnectionConfiguration1 = new XMPPLLConnectionConfiguration.Builder()
+//                        .setServiceName("ishan@macbookpro")
+//                        .setPort(5524)
+//                        .build();
+//        XMPPLLConnection xmppllConnection1 = new XMPPLLConnection(xmppllConnectionConfiguration);
+
         try {
             System.out.println("Going Online");
             xmppllConnection.announcePresence();
+            Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+                public void run() {
+                    System.out.println("In shutdown hook");
+                    xmppllConnection.concealPresence();
+                }
+            }, "Shutdown-thread"));
         }
         catch (XMPPException e) {
             e.printStackTrace();
