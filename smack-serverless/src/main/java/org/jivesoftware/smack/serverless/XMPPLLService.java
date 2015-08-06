@@ -25,12 +25,20 @@ import org.jivesoftware.smack.serverless.packet.XMPPLLStreamOpen;
 import org.jxmpp.jid.BareJid;
 
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 public abstract class XMPPLLService {
 
@@ -109,55 +117,58 @@ public abstract class XMPPLLService {
 
     public void init(int port) throws XMPPException, IOException {
 
+        Selector selector = Selector.open();
+
         // allocate a new port for remote clients to connect to
-        listeningSocket = new ServerSocket(port);
-        listeningSocket.setSoTimeout(0);
-        // start to listen for new connections
-        listenerThread = new Thread() {
-            public void run() {
-                try {
+        ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
+        serverSocketChannel.configureBlocking(false);
+        serverSocketChannel.bind(new InetSocketAddress(port));
 
-                    System.out.println("Thread started");
-                    // Listen for connections
-                    listenForConnections();
+        serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
 
-                }
-                catch (XMPPException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        listenerThread.setName("Smack Link-local Service Listener");
-        listenerThread.setDaemon(true);
-        listenerThread.start();
-    }
-
-    /**
-     * Listen for new connections on listeningSocket, and spawn XMPPLLConnections
-     * when new connections are established.
-     *
-     * @throws XMPPException whenever an exception occurs
-     */
-    private void listenForConnections() throws XMPPException {
-        System.out.println("Listening For Connections");
+        // Listen for connections
         while (!done) {
             try {
                 while (true) {
-                    System.out.println("Listening For Connections in the loop");
-                    // wait for new connection
-                    Socket s = listeningSocket.accept();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
-                    System.out.println(reader.readLine());
-                    if (!initiated) {
-                        DataOutputStream dataOutputStream = new DataOutputStream(s.getOutputStream());
-                        BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
-                        XMPPLLStreamOpen xmppllStreamOpen = new XMPPLLStreamOpen("ubuntu@ubuntu",
-                                        presence.getServiceName());
-                        System.out.println(xmppllStreamOpen.toXML().toString());
-                        bufferedWriter.write(xmppllStreamOpen.toXML().toString());
-                        initiated = true;
+
+                    int readyChannels = selector.select();
+
+                    if(readyChannels == 0) continue;
+
+                    Set<SelectionKey> selectedKeys = selector.selectedKeys();
+
+                    Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
+
+                    while(keyIterator.hasNext()) {
+
+                        SelectionKey key = keyIterator.next();
+
+                        if(key.isAcceptable()) {
+                            // a connection was accepted by a ServerSocketChannel.
+                            Socket s = serverSocketChannel.accept().socket();
+                            BufferedReader reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
+                            System.out.println(reader.readLine());
+                            if (!initiated) {
+                                DataOutputStream dataOutputStream = new DataOutputStream(s.getOutputStream());
+                                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
+                                XMPPLLStreamOpen xmppllStreamOpen = new XMPPLLStreamOpen("ubuntu@ubuntu",
+                                                presence.getServiceName());
+                                System.out.println(xmppllStreamOpen.toXML().toString());
+                                bufferedWriter.write(xmppllStreamOpen.toXML().toString());
+                                initiated = true;
+                            }
+                        } else if (key.isConnectable()) {
+                            // a connection was established with a remote server.
+
+                        } else if (key.isReadable()) {
+                            // a channel is ready for reading
+
+                        } else if (key.isWritable()) {
+                            // a channel is ready for writing
+                        }
+
+                        keyIterator.remove();
                     }
-                    System.out.println("Listening For Connections, out of the inner loop");
                 }
             }
             catch (SocketException se) {
@@ -174,7 +185,6 @@ public abstract class XMPPLLService {
                                 new XMPPError(XMPPError.Condition.undefined_condition), ioe);
             }
         }
-        System.out.println("Listening For Connections, out of the loop");
     }
 
     /**

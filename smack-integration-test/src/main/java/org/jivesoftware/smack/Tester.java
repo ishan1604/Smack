@@ -12,6 +12,11 @@
  */
 package org.jivesoftware.smack;
 
+import org.jivesoftware.smack.chat.Chat;
+import org.jivesoftware.smack.chat.ChatManager;
+import org.jivesoftware.smack.chat.ChatManagerListener;
+import org.jivesoftware.smack.chat.ChatMessageListener;
+import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Nonza;
 import org.jivesoftware.smack.serverless.JmDNSService;
 import org.jivesoftware.smack.serverless.XMPPLLConnection;
@@ -19,6 +24,8 @@ import org.jivesoftware.smack.serverless.XMPPLLConnectionConfiguration;
 import org.jivesoftware.smack.serverless.XMPPLLPresence;
 import org.jivesoftware.smack.serverless.packet.XMPPLLStreamOpen;
 import org.jxmpp.jid.BareJid;
+import org.jxmpp.jid.EntityJid;
+import org.jxmpp.jid.Jid;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -29,29 +36,6 @@ import java.util.List;
 public class Tester {
 
     public static void main(String...args) throws UnknownHostException, InterruptedException {
-
-//        XMPPLLPresence xmppllPresence = new XMPPLLPresence("ishan@intellij");
-//        xmppllPresence.setPort(5562);
-//        xmppllPresence.setFirstName("Deepali");
-//        xmppllPresence.setLastName("Kishnani");
-//        xmppllPresence.setNick("deeps");
-//        xmppllPresence.setStatus(XMPPLLPresence.Mode.avail);
-//        xmppllPresence.setHost(InetAddress.getLocalHost().toString());
-//        xmppllPresence.setHash("sha-1");
-//        xmppllPresence.setVer("1");
-//        xmppllPresence.setMsg("Hanging out down");
-//        xmppllPresence.setNode("www.ishankhanna.in");
-//        xmppllPresence.setJid("ishan1604@jabber.org");
-//
-//        JmDNSService jmDNSService = new JmDNSService();
-//
-//        try {
-//            jmDNSService.announcePresence(xmppllPresence);
-//
-//        }
-//        catch (XMPPException e) {
-//            e.printStackTrace();
-//        }
 
         XMPPLLConnectionConfiguration xmppllConnectionConfiguration = new XMPPLLConnectionConfiguration.Builder()
                         .setServiceName("ishan@macbookpro")
@@ -68,6 +52,7 @@ public class Tester {
         try {
             System.out.println("Going Online");
             xmppllConnection.announcePresence();
+
             Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
                 public void run() {
                     System.out.println("In shutdown hook");
