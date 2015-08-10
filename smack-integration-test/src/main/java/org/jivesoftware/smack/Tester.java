@@ -38,8 +38,8 @@ public class Tester {
     public static void main(String...args) throws UnknownHostException, InterruptedException {
 
         XMPPLLConnectionConfiguration xmppllConnectionConfiguration = new XMPPLLConnectionConfiguration.Builder()
-                        .setServiceName("ishan@macbookpro")
-                        .setPort(5522)
+                        .setServiceName("ish@macbookpro")
+                        .setPort(5523)
                         .build();
         XMPPLLConnection xmppllConnection = new XMPPLLConnection(xmppllConnectionConfiguration);
 

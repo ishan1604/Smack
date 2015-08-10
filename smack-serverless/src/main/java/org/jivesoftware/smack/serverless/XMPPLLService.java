@@ -22,7 +22,10 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smack.serverless.packet.XMPPLLStreamOpen;
+import org.jivesoftware.smack.util.PacketParserUtils;
 import org.jxmpp.jid.BareJid;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -149,12 +152,13 @@ public abstract class XMPPLLService {
                             BufferedReader reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
                             System.out.println(reader.readLine());
                             if (!initiated) {
-                                DataOutputStream dataOutputStream = new DataOutputStream(s.getOutputStream());
-                                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
+                                OutputStreamWriter outputStreamWriter= new OutputStreamWriter(s.getOutputStream(), "UTF-8");
+                                BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
                                 XMPPLLStreamOpen xmppllStreamOpen = new XMPPLLStreamOpen("ubuntu@ubuntu",
                                                 presence.getServiceName());
                                 System.out.println(xmppllStreamOpen.toXML().toString());
                                 bufferedWriter.write(xmppllStreamOpen.toXML().toString());
+                                bufferedWriter.flush();
                                 initiated = true;
                             }
                         } else if (key.isConnectable()) {

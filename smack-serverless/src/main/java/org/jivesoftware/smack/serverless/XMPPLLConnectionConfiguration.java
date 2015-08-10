@@ -41,8 +41,8 @@ public class XMPPLLConnectionConfiguration extends ConnectionConfiguration{
         super(builder);
         localPresence = new XMPPLLPresence(builder.serviceName);
         localPresence.setPort(builder.port);
-        localPresence.setFirstName("Steven");
-        localPresence.setLastName("Smith");
+        localPresence.setFirstName("Ishan");
+        localPresence.setLastName("Khanna");
         localPresence.setNick("deeps");
         localPresence.setStatus(XMPPLLPresence.Mode.avail);
         try {
