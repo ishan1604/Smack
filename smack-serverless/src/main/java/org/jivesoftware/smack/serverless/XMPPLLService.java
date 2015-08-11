@@ -157,7 +157,8 @@ public abstract class XMPPLLService {
                                 XMPPLLStreamOpen xmppllStreamOpen = new XMPPLLStreamOpen("ubuntu@ubuntu",
                                                 presence.getServiceName());
                                 System.out.println(xmppllStreamOpen.toXML().toString());
-                                bufferedWriter.write(xmppllStreamOpen.toXML().toString());
+                                bufferedWriter.write("<?xml version='1.0'?>"+xmppllStreamOpen.toXML().toString());
+                                bufferedWriter.newLine();
                                 bufferedWriter.flush();
                                 initiated = true;
                             }
