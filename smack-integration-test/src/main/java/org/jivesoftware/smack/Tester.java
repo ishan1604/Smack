@@ -39,11 +39,18 @@ public class Tester {
 
         XMPPLLConnectionConfiguration xmppllConnectionConfiguration = new XMPPLLConnectionConfiguration.Builder()
                         .setServiceName("ish@macbookpro")
-                        .setPort(5523)
+                        .setPort(5521)
                         .build();
         XMPPLLConnection xmppllConnection = new XMPPLLConnection(xmppllConnectionConfiguration);
 
-//        XMPPLLConnectionConfiguration xmppllConnectionConfiguration1 = new XMPPLLConnectionConfiguration.Builder()
+        XMPPLLConnectionConfiguration xmppllConnectionConfiguration1 = new XMPPLLConnectionConfiguration.Builder()
+                        .setServiceName("ishan@macbookpro")
+                        .setPort(5524)
+                        .build();
+        XMPPLLConnection xmppllConnection1 = new XMPPLLConnection(xmppllConnectionConfiguration1);
+
+
+        //        XMPPLLConnectionConfiguration xmppllConnectionConfiguration1 = new XMPPLLConnectionConfiguration.Builder()
 //                        .setServiceName("ishan@macbookpro")
 //                        .setPort(5524)
 //                        .build();

@@ -82,7 +82,12 @@ public class JmDNSService extends XMPPLLService implements ServiceListener {
         }
 
         try {
-            init(presence.getPort());
+            try {
+                init(presence.getPort());
+            }
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         catch (IOException e) {
             e.printStackTrace();

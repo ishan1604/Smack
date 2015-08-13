@@ -32,14 +32,12 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
@@ -48,6 +46,7 @@ public abstract class XMPPLLService {
     static final int DEFAULT_MIN_PORT = 2300;
     static final int DEFAULT_MAX_PORT = 2400;
     private static XMPPLLService service = null;
+    static ByteBuffer buffer = ByteBuffer.allocate(512);
 
     static {
         SmackConfiguration.getVersion();
@@ -118,7 +117,7 @@ public abstract class XMPPLLService {
      */
     public abstract void concealPresence();
 
-    public void init(int port) throws XMPPException, IOException {
+    public void init(int port) throws XMPPException, IOException, InterruptedException {
 
         Selector selector = Selector.open();
 
@@ -148,28 +147,55 @@ public abstract class XMPPLLService {
 
                         if(key.isAcceptable()) {
                             // a connection was accepted by a ServerSocketChannel.
-                            Socket s = serverSocketChannel.accept().socket();
-                            BufferedReader reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
-                            System.out.println(reader.readLine());
-                            if (!initiated) {
-                                OutputStreamWriter outputStreamWriter= new OutputStreamWriter(s.getOutputStream(), "UTF-8");
-                                BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
-                                XMPPLLStreamOpen xmppllStreamOpen = new XMPPLLStreamOpen("ubuntu@ubuntu",
-                                                presence.getServiceName());
-                                System.out.println(xmppllStreamOpen.toXML().toString());
-                                bufferedWriter.write("<?xml version='1.0'?>"+xmppllStreamOpen.toXML().toString());
-                                bufferedWriter.newLine();
-                                bufferedWriter.flush();
-                                initiated = true;
-                            }
+                            SocketChannel socketChannel = serverSocketChannel.accept();
+                            socketChannel.configureBlocking(false);
+                            SelectionKey clientKey = socketChannel.register(selector, SelectionKey.OP_READ);
+                            clientKey.attach(new Integer(0));
+                            SelectionKey clientKey2 = socketChannel.register(selector, SelectionKey.OP_WRITE);
+                            clientKey2.attach(new Integer(1));
+
                         } else if (key.isConnectable()) {
                             // a connection was established with a remote server.
 
                         } else if (key.isReadable()) {
                             // a channel is ready for reading
+                            SocketChannel client = (SocketChannel) key.channel();
+                            System.out.println("Here Now");
+                            if (!key.isReadable())
+                                continue;
+                            int bytesread = client.read(buffer);
+                            if (bytesread == -1) {
+                                key.cancel();
+                                client.close();
+                                continue;
+                            }
+                            buffer.flip();
+                            byte[] bytes = new byte[buffer.remaining()];
+                            buffer.get(bytes);
+                            System.out.println(new String(bytes));
+
+                            buffer.clear();
 
                         } else if (key.isWritable()) {
                             // a channel is ready for writing
+
+                            SocketChannel socketChannel = (SocketChannel) key.channel();
+                            if (!key.isWritable())
+                                continue;
+                            if (!initiated) {
+                                XMPPLLStreamOpen xmppllStreamOpen = new XMPPLLStreamOpen("ubuntu@ubuntu",
+                                                presence.getServiceName());
+                                System.out.println(xmppllStreamOpen.toXML().toString());
+                                ByteBuffer bb = ByteBuffer.wrap(xmppllStreamOpen.toXML().toString().getBytes("utf-8"));
+                                socketChannel.write(bb);
+                                initiated = true;
+                            } else {
+                                String msg = "<message xmlns=\"jabber:client\" to=\"ubuntu@ubuntu\" type=\"chat\" id=\"106\" from=\"ish@macbookpro/local\"><body>Hello Bro "+ new Random(System.currentTimeMillis()).nextInt() +"</body></message>\n";
+                                ByteBuffer bb = ByteBuffer.wrap(msg.getBytes("utf-8"));
+                                socketChannel.write(bb);
+                                Thread.sleep(5000);
+                            }
+
                         }
 
                         keyIterator.remove();

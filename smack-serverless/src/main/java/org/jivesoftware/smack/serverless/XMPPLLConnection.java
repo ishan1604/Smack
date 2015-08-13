@@ -44,7 +44,6 @@ public class XMPPLLConnection extends AbstractXMPPConnection {
     }
 
     public void announcePresence() throws XMPPException, IOException {
-        //service.init(xmppllConnectionConfiguration.getLocalPresence().getPort());
         service.announcePresence(xmppllConnectionConfiguration.getLocalPresence());
     }
 
