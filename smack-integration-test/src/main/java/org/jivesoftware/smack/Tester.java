@@ -38,34 +38,13 @@ public class Tester {
     public static void main(String...args) throws UnknownHostException, InterruptedException {
 
         XMPPLLConnectionConfiguration xmppllConnectionConfiguration = new XMPPLLConnectionConfiguration.Builder()
-                        .setServiceName("ish@macbookpro")
-                        .setPort(5521)
+                        .setServiceName("tester@macbookpro")
+                        .setPort(5524)
                         .build();
         XMPPLLConnection xmppllConnection = new XMPPLLConnection(xmppllConnectionConfiguration);
 
-        XMPPLLConnectionConfiguration xmppllConnectionConfiguration1 = new XMPPLLConnectionConfiguration.Builder()
-                        .setServiceName("ishan@macbookpro")
-                        .setPort(5524)
-                        .build();
-        XMPPLLConnection xmppllConnection1 = new XMPPLLConnection(xmppllConnectionConfiguration1);
-
-
-        //        XMPPLLConnectionConfiguration xmppllConnectionConfiguration1 = new XMPPLLConnectionConfiguration.Builder()
-//                        .setServiceName("ishan@macbookpro")
-//                        .setPort(5524)
-//                        .build();
-//        XMPPLLConnection xmppllConnection1 = new XMPPLLConnection(xmppllConnectionConfiguration);
-
         try {
-            System.out.println("Going Online");
             xmppllConnection.announcePresence();
-
-            Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-                public void run() {
-                    System.out.println("In shutdown hook");
-                    xmppllConnection.concealPresence();
-                }
-            }, "Shutdown-thread"));
         }
         catch (XMPPException e) {
             e.printStackTrace();
