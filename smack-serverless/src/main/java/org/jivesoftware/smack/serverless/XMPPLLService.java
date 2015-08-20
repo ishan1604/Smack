@@ -24,6 +24,7 @@ import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smack.serverless.packet.XMPPLLStreamOpen;
 import org.jivesoftware.smack.util.PacketParserUtils;
 import org.jxmpp.jid.BareJid;
+import org.jxmpp.jid.Jid;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -46,6 +47,8 @@ public abstract class XMPPLLService {
     static final int DEFAULT_MIN_PORT = 2300;
     static final int DEFAULT_MAX_PORT = 2400;
     private static XMPPLLService service = null;
+    private Map<String,XMPPLLStreamOpen> streamOpenMap = new HashMap<>();
+
     static ByteBuffer buffer = ByteBuffer.allocate(512);
 
     static {
@@ -55,8 +58,6 @@ public abstract class XMPPLLService {
     protected XMPPLLPresence presence;
     private boolean done = false;
     private boolean initiated = false;
-    private Thread listenerThread;
-    private ServerSocket listeningSocket;
     private Map<String, XMPPLLConnection> incoming = new ConcurrentHashMap<String, XMPPLLConnection>();
     private Map<String, XMPPLLConnection> outgoing = new ConcurrentHashMap<String, XMPPLLConnection>();
 
@@ -171,14 +172,8 @@ public abstract class XMPPLLService {
                             System.out.println(new String(bytes));
                             buffer.clear();
 
-                            if (!initiated) {
-                                XMPPLLStreamOpen xmppllStreamOpen = new XMPPLLStreamOpen("ubuntu@ubuntu",
-                                                presence.getServiceName());
-                                System.out.println(xmppllStreamOpen.toXML().toString());
-                                ByteBuffer bb = ByteBuffer.wrap(xmppllStreamOpen.toXML().toString().getBytes("utf-8"));
-                                client.write(bb);
-                                bb.clear();
-                                initiated = true;
+                            if (!streamOpenMap.containsKey(presence.getJid())) {
+                                openStream(client);
                             } else {
                                 String msg = "<message xmlns=\"jabber:client\" to=\"ubuntu@ubuntu\" type=\"chat\" id=\"106\" from=\"ish@macbookpro/local\"><body>Hello Bro "+ new Random(System.currentTimeMillis()).nextInt() +"</body></message>\n";
                                 ByteBuffer bb = ByteBuffer.wrap(msg.getBytes("utf-8"));
@@ -251,6 +246,15 @@ public abstract class XMPPLLService {
         c = getConnectionTo(newName);
         if (c != null)
             c.disconnect();
+    }
 
+    private void openStream(SocketChannel client) throws IOException {
+
+        XMPPLLStreamOpen xmppllStreamOpen = new XMPPLLStreamOpen("ubuntu@ubuntu",
+                        presence.getServiceName());
+        ByteBuffer bb = ByteBuffer.wrap(xmppllStreamOpen.toXML().toString().getBytes("utf-8"));
+        client.write(bb);
+        bb.clear();
+        streamOpenMap.put(presence.getJid(), xmppllStreamOpen);
     }
 }

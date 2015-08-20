@@ -21,17 +21,19 @@ import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Nonza;
 import org.jivesoftware.smack.packet.Stanza;
+import org.jivesoftware.smack.serverless.packet.XMPPLLStreamOpen;
+import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.parts.Resourcepart;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.HashMap;
+import java.util.Map;
 
 public class XMPPLLConnection extends AbstractXMPPConnection {
 
     private JmDNSService service;
     private final XMPPLLConnectionConfiguration xmppllConnectionConfiguration;
-    private ServerSocket serverSocket;
-
 
     /**
      * Initialize a new Link-Local Connection.  
