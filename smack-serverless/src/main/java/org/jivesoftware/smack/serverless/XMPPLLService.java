@@ -47,17 +47,13 @@ public abstract class XMPPLLService {
     static final int DEFAULT_MIN_PORT = 2300;
     static final int DEFAULT_MAX_PORT = 2400;
     private static XMPPLLService service = null;
-    private Map<String,XMPPLLStreamOpen> streamOpenMap = new HashMap<>();
-
-    static ByteBuffer buffer = ByteBuffer.allocate(512);
 
     static {
         SmackConfiguration.getVersion();
     }
 
     protected XMPPLLPresence presence;
-    private boolean done = false;
-    private boolean initiated = false;
+
     private Map<String, XMPPLLConnection> incoming = new ConcurrentHashMap<String, XMPPLLConnection>();
     private Map<String, XMPPLLConnection> outgoing = new ConcurrentHashMap<String, XMPPLLConnection>();
 
@@ -118,105 +114,7 @@ public abstract class XMPPLLService {
      */
     public abstract void concealPresence();
 
-    public void init(int port) throws XMPPException, IOException, InterruptedException {
 
-        Selector selector = Selector.open();
-
-        // allocate a new port for remote clients to connect to
-        ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
-        serverSocketChannel.configureBlocking(false);
-        serverSocketChannel.bind(new InetSocketAddress(port));
-
-        serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
-
-        // Listen for connections
-        while (!done) {
-            try {
-                while (true) {
-
-                    int readyChannels = selector.select();
-
-                    if(readyChannels == 0) continue;
-
-                    Set<SelectionKey> selectedKeys = selector.selectedKeys();
-
-                    Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
-
-                    while(keyIterator.hasNext()) {
-
-                        SelectionKey key = keyIterator.next();
-
-                        if(key.isAcceptable()) {
-                            // a connection was accepted by a ServerSocketChannel.
-                            SocketChannel socketChannel = serverSocketChannel.accept();
-                            socketChannel.configureBlocking(false);
-                            SelectionKey clientKey2 = socketChannel.register(selector, SelectionKey.OP_WRITE);
-                            clientKey2.attach(new Integer(1));
-                            SelectionKey clientKey = socketChannel.register(selector, SelectionKey.OP_READ);
-                            clientKey.attach(new Integer(0));
-
-                        } else if (key.isReadable()) {
-                            // a channel is ready for reading
-                            SocketChannel client = (SocketChannel) key.channel();
-                            if (!key.isReadable())
-                                continue;
-                            int bytesread = client.read(buffer);
-                            if (bytesread == -1) {
-                                key.cancel();
-                                client.close();
-                                continue;
-                            }
-                            buffer.flip();
-                            byte[] bytes = new byte[buffer.remaining()];
-                            buffer.get(bytes);
-                            System.out.println(new String(bytes));
-                            buffer.clear();
-
-                            if (!streamOpenMap.containsKey(presence.getJid())) {
-                                openStream(client);
-                            } else {
-                                String msg = "<message xmlns=\"jabber:client\" to=\"ubuntu@ubuntu\" type=\"chat\" id=\"106\" from=\"ish@macbookpro/local\"><body>Hello Bro "+ new Random(System.currentTimeMillis()).nextInt() +"</body></message>\n";
-                                ByteBuffer bb = ByteBuffer.wrap(msg.getBytes("utf-8"));
-                                client.write(bb);
-                                bb.clear();
-                            }
-                        } else if (key.isWritable()) {
-                            // a channel is ready for writing
-
-                            SocketChannel socketChannel = (SocketChannel) key.channel();
-                            if (!key.isWritable())
-                                continue;
-                            /*
-
-                                if (MESSAGE QUEUE != empty) {
-                                    String msg = Get message from MESSAGE QUEUE
-                                    ByteBuffer bb = ByteBuffer.wrap(msg.getBytes("utf-8"));
-                                    socketChannel.write(bb);
-                                }
-
-
-                             */
-                        }
-
-                        keyIterator.remove();
-                    }
-                }
-            }
-            catch (SocketException se) {
-                se.printStackTrace();
-                // If we are closing down, it's probably closed listeningSocket exception.
-                if (!done) {
-                    throw new XMPPException.XMPPErrorException("Link-local service unexpectedly closed down.",
-                                    new XMPPError(XMPPError.Condition.undefined_condition), se);
-                }
-            }
-            catch (IOException ioe) {
-                ioe.printStackTrace();
-                throw new XMPPException.XMPPErrorException("Link-local service unexpectedly closed down.",
-                                new XMPPError(XMPPError.Condition.undefined_condition), ioe);
-            }
-        }
-    }
 
     /**
      * Returns a connection to a given service name.
@@ -248,13 +146,4 @@ public abstract class XMPPLLService {
             c.disconnect();
     }
 
-    private void openStream(SocketChannel client) throws IOException {
-
-        XMPPLLStreamOpen xmppllStreamOpen = new XMPPLLStreamOpen("ubuntu@ubuntu",
-                        presence.getServiceName());
-        ByteBuffer bb = ByteBuffer.wrap(xmppllStreamOpen.toXML().toString().getBytes("utf-8"));
-        client.write(bb);
-        bb.clear();
-        streamOpenMap.put(presence.getJid(), xmppllStreamOpen);
-    }
 }

@@ -80,19 +80,6 @@ public class JmDNSService extends XMPPLLService implements ServiceListener {
             throw new XMPPException.XMPPErrorException("Failed to register DNS-SD Service",
                             new XMPPError(XMPPError.Condition.undefined_condition), ioe);
         }
-
-        try {
-            try {
-                init(presence.getPort());
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
     }
 
     @Override public void concealPresence() {
